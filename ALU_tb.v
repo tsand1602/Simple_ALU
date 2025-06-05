@@ -1,20 +1,16 @@
 `timescale 1ns/1ps
 
 module ALU_tb;
-
-    reg [3:0] A_4, B_4;
-    reg [5:0] A_6, B_6;
-    reg [7:0] A_8, B_8;
+    reg [5:0] A, B;
     reg [1:0] alu_sel;
     reg carry_in;
-
     wire [11:0] result;
     wire carry_out;
 
+    // Instantiate the ALU
     ALU uut (
-        .A_4(A_4), .B_4(B_4),
-        .A_6(A_6), .B_6(B_6),
-        .A_8(A_8), .B_8(B_8),
+        .A(A),
+        .B(B),
         .alu_sel(alu_sel),
         .carry_in(carry_in),
         .result(result),
@@ -22,67 +18,62 @@ module ALU_tb;
     );
 
     initial begin
-        $display("Starting ALU testbench...");
+        $display("ALU Testbench - 6-bit Inputs\n");
 
-        // Initialize all inputs
-        A_4 = 0; B_4 = 0; A_6 = 0; B_6 = 0; A_8 = 0; B_8 = 0; carry_in = 0; alu_sel = 0;
-        #5;
-
-        // ADD: 4-bit addition, no carry in
-        alu_sel = 2'b00;
-        A_4 = 4'b0101; B_4 = 4'b0011; carry_in = 1'b0;
+        // Test ADD
+        alu_sel = 2'b00; carry_in = 0;
+        A = 6'b000101; B = 6'b000011; // 5 + 3 = 8
         #10;
-        $display("ADD: %d + %d = %d, carry_out=%b, result=0x%h", A_4, B_4, result[3:0], carry_out, result);
+        $display("ADD: %d + %d = %d (result = %b), carry_out=%b", A, B, result[5:0], result, carry_out);
 
-        // ADD: 4-bit addition, with carry in
-        alu_sel = 2'b00;
-        A_4 = 4'b1111; B_4 = 4'b0001; carry_in = 1'b1;
+        alu_sel = 2'b00; carry_in = 1;
+        A = 6'b111111; B = 6'b000001; // 63 + 1 + carry_in = 65
         #10;
-        $display("ADD (with carry): %d + %d + %b = %d, carry_out=%b, result=0x%h", A_4, B_4, carry_in, result[3:0], carry_out, result);
+        $display("ADD: %d + %d + carry_in = %d (result = %b), carry_out=%b", A, B, result[5:0], result, carry_out);
 
-        // SUB: 8-bit subtraction, no borrow
-        alu_sel = 2'b01;
-        A_8 = 8'd100; B_8 = 8'd25; carry_in = 1'b0;
+        // Test SUB
+        alu_sel = 2'b01; carry_in = 0;
+        A = 6'b001010; B = 6'b000110; // 10 - 6 = 4
         #10;
-        $display("SUB: %d - %d = %d, borrow_out=%b, result=0x%h", A_8, B_8, result[7:0], carry_out, result);
+        $display("SUB: %d - %d = %d (result = %b), borrow_out=%b", A, B, result[5:0], result, carry_out);
 
-        // SUB: 8-bit subtraction, with borrow (result negative)
-        alu_sel = 2'b01;
-        A_8 = 8'd50; B_8 = 8'd100; carry_in = 1'b0;
+        alu_sel = 2'b01; carry_in = 1;
+        A = 6'b000100; B = 6'b000011; // 4 - 3 - 1 = 0
         #10;
-        $display("SUB (with borrow): %d - %d = %d, borrow_out=%b, result=0x%h", A_8, B_8, result[7:0], carry_out, result);
+        $display("SUB: %d - %d - borrow_in = %d (result = %b), borrow_out=%b", A, B, result[5:0], result, carry_out);
 
-        // MUL: 6-bit multiplication, normal case
-        alu_sel = 2'b10;
-        A_6 = 6'd15; B_6 = 6'd3;
+        alu_sel = 2'b01; carry_in = 0;
+        A = 6'b000010; B = 6'b000100; // 2 - 4 = negative value (underflow)
         #10;
-        $display("MUL: %d * %d = %d, result=0x%h", A_6, B_6, result, result);
+        $display("SUB (underflow): %d - %d = %d (result = %b), borrow_out=%b", A, B, result[5:0], result, carry_out);
 
-        // MUL: 6-bit multiplication, large values (max * max)
-        alu_sel = 2'b10;
-        A_6 = 6'd63; B_6 = 6'd63;
+        // Test MUL
+        alu_sel = 2'b10; carry_in = 0;
+        A = 6'd10; B = 6'd15;
         #10;
-        $display("MUL (max): %d * %d = %d, result=0x%h", A_6, B_6, result, result);
+        $display("MUL: %d * %d = %d (result = %b)", A, B, result, result);
 
-        // AND: 4-bit AND
-        alu_sel = 2'b11;
-        A_4 = 4'b1101; B_4 = 4'b1010;
+        alu_sel = 2'b10; carry_in = 0;
+        A = 6'd63; B = 6'd63;
         #10;
-        $display("AND: %b & %b = %b, result=0x%h", A_4, B_4, result[3:0], result);
+        $display("MUL (max): %d * %d = %d (result = %b)", A, B, result, result);
 
-        // AND: 4-bit AND, all ones
-        alu_sel = 2'b11;
-        A_4 = 4'b1111; B_4 = 4'b1111;
+        // Test AND
+        alu_sel = 2'b11; carry_in = 0;
+        A = 6'b110011; B = 6'b101010;
         #10;
-        $display("AND (all ones): %b & %b = %b, result=0x%h", A_4, B_4, result[3:0], result);
+        $display("AND: %b & %b = %b (result = %b)", A, B, result[5:0], result);
 
-        // Invalid alu_sel
-        alu_sel = 2'bxx;
+        alu_sel = 2'b11; carry_in = 0;
+        A = 6'b111111; B = 6'b000000;
         #10;
-        $display("Default/Invalid alu_sel, result=0x%h, carry_out=%b", result, carry_out);
+        $display("AND (all zeros): %b & %b = %b (result = %b)", A, B, result[5:0], result);
 
-        $display("ALU testbench completed.");
-        $stop;
+        alu_sel = 2'b11; carry_in = 0;
+        A = 6'b111111; B = 6'b111111;
+        #10;
+        $display("AND (all ones): %b & %b = %b (result = %b)", A, B, result[5:0], result);
+
+        $finish;
     end
-
 endmodule
