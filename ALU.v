@@ -48,7 +48,7 @@ always @(*) begin
             result    = {4'b0, sub8}; 
             carry_out = sub_borrow_out;
         end
-        2'b10: begin =
+        2'b10: begin 
             result    = mul6;
             carry_out = 1'b0;
         end
