@@ -141,8 +141,6 @@ module wallace_tree_6(input [5:0] op1,op2, output [11:0] res);
     half_adder h10(p[1],p[6],f1_carry,res[1]);
     full_adder f15(s[6],p[12],f1_carry,f2_carry,res[2]);
 
-    and (res[11],c[17],1'b1);
-
     CLA4 add1({s[22],s[20],s[14],s[16]},{c[20],c[9],c[16],c[6]},f2_carry,f3_carry,res[6:3]);
     CLA4 add2({s[17],s[18],s[19],s[21]},{c[18],c[19],c[21],c[22]},f3_carry,res[11],res[10:7]);
 
