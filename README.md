@@ -41,7 +41,7 @@ The ALU supports selectable operations via a 2-bit function selector.
 2. **Compile and Simulate**
     - Using [Icarus Verilog](http://iverilog.icarus.com/):
       ```sh
-      iverilog -o alu_testbench ALU.v add.v Sub-6bit.v wallace_tree_6.v ALU_tb.v
+      iverilog -o alu_testbench ALU.v Adder-6bit.v Sub-6bit.v wallace_tree_6.v ALU_tb.v
       vvp alu_testbench
       ```
     - Adjust file names as needed if you add/remove modules.
