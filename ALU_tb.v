@@ -50,7 +50,7 @@ module ALU_tb;
         $display("MUL (Max): %d * %d = %d", A, B, result);
 
         $display("ALU Testbench Finished");
-        $stop;
+        $finish;
     end
 
 endmodule
